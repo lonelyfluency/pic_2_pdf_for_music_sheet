@@ -14,14 +14,23 @@ def generate_toc(toc_data, toc_filename):
     """Generate a PDF for the Table of Contents."""
     c = Canvas(toc_filename, pagesize=letter)
     width, height = letter
-    c.setFont(font_name, 12)
     y_position = height - 2 * inch
+
+    # Define a function to set font, so it can be reused for new pages
+    def set_font():
+        c.setFont(font_name, 12)
+
+    set_font()  # Set font for the first page
+
     for title, page_number in toc_data:
+        if y_position < inch:  # If there's not enough space, create a new page and reset font
+            c.showPage()
+            set_font()  # Re-apply font settings for the new page
+            y_position = height - 2 * inch  # Reset y_position for the new page
+
         c.drawString(inch, y_position, f"{title} - Page {page_number}")
         y_position -= 0.2 * inch
-        if y_position < inch:
-            c.showPage()
-            y_position = height - 2 * inch
+
     c.save()
 
 def create_music_sheets_pdf(music_sheets_dir, content_filename):
